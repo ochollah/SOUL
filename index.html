@@ -10,173 +10,203 @@
         [v-cloak] { display: none; }
         .cyber-bg { background: radial-gradient(circle at top, #0f172a 0%, #020617 100%); }
         .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .pulse-dot { width: 14px; height: 14px; background: #3b82f6; border-radius: 50%; box-shadow: 0 0 15px #3b82f6; position: absolute; animation: pulse 2s infinite; cursor: pointer; }
+        .pulse-dot { width: 14px; height: 14px; border-radius: 50%; position: absolute; animation: pulse 2s infinite; cursor: pointer; }
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(3); opacity: 0; } }
-        .admin-link { @apply p-3 rounded-xl text-[10px] font-bold uppercase text-left transition-all hover:bg-white/5; }
-        .admin-link.active { @apply bg-blue-600 text-white shadow-lg shadow-blue-900/40; }
+        .admin-link { @apply p-4 rounded-2xl text-[10px] font-bold uppercase text-left transition-all hover:bg-white/5 border border-transparent; }
+        .admin-link.active { @apply bg-blue-600 text-white shadow-lg border-blue-400; }
+        .error-text { @apply text-[10px] text-red-500 font-bold uppercase mt-1 block; }
     </style>
 </head>
-<body class="cyber-bg text-slate-300 min-h-screen">
+<body class="cyber-bg text-slate-300 min-h-screen font-sans">
 
 <div id="app" v-cloak>
-    <nav class="p-4 flex justify-between items-center glass sticky top-0 z-50">
+    <nav class="p-5 flex justify-between items-center glass sticky top-0 z-50">
         <h1 class="font-black text-white tracking-widest text-xs uppercase cursor-pointer" @click="view = 'seeker'">Harvest <span class="text-blue-500">Global</span></h1>
         <div class="flex gap-4">
             <button v-if="isAdmin" @click="handleLogout" class="text-[10px] text-red-500 font-bold uppercase">Logout</button>
-            <button v-else @click="view = 'login'" class="text-[10px] text-slate-500 uppercase">Admin Portal</button>
+            <button v-else @click="view = 'login'" class="text-[10px] text-slate-400 uppercase font-bold">Admin Portal</button>
         </div>
     </nav>
 
     <main v-if="view === 'seeker'" class="max-w-4xl mx-auto py-12 px-6">
-        <section v-if="salvationInfo" class="mb-12 glass p-8 rounded-3xl border border-blue-500/20">
-            <h2 class="text-blue-400 font-black text-xs uppercase mb-4 tracking-widest">The Message of Salvation</h2>
-            <div class="space-y-4 text-sm leading-relaxed">
-                <p><strong class="text-white uppercase text-[10px]">What is it?</strong> {{ salvationInfo.description }}</p>
-                <p><strong class="text-white uppercase text-[10px]">Why & Importance:</strong> {{ salvationInfo.importance }}</p>
-                <p><strong class="text-white uppercase text-[10px]">For Who?</strong> {{ salvationInfo.who }}</p>
-            </div>
-        </section>
-
-        <div class="space-y-12">
-            <section class="glass p-10 rounded-[2.5rem] border-l-4 border-blue-600">
-                <div v-if="scriptures.length === 0" class="text-slate-600 italic text-sm">Searching the Word...</div>
-                <div v-for="s in scriptures" :key="s.id" class="mb-8 last:mb-0">
-                    <h2 class="text-3xl font-serif italic text-white leading-tight">"{{ s.text }}"</h2>
-                    <p class="text-blue-500 mt-3 font-mono text-xs uppercase">— {{ s.ref }}</p>
-                </div>
-                <div class="mt-6 flex items-center gap-3">
-                    <input type="checkbox" v-model="wordRead" id="readCheck" class="w-5 h-5 rounded border-white/20 bg-black/60 cursor-pointer">
-                    <label for="readCheck" class="text-[10px] uppercase text-slate-400 cursor-pointer">I have read and meditated on the Word</label>
-                </div>
-            </section>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="bg-black rounded-3xl overflow-hidden border-2 border-white/5 aspect-video flex items-center justify-center relative">
-                    <video v-if="videoContent.length > 0" :key="videoContent[0].url" controls playsinline crossorigin="anonymous" class="w-full h-full">
-                        <source :src="videoContent[0].url" type="video/mp4">
-                    </video>
-                    <p v-else class="text-[10px] text-slate-700 uppercase">Video Testimony Offline</p>
-                </div>
-                <div class="bg-slate-900/50 rounded-3xl p-8 border border-white/5 flex flex-col justify-center">
-                    <p class="text-[10px] font-bold text-blue-500 uppercase mb-4 tracking-widest">Audio Message</p>
-                    <div v-for="a in audioContent" :key="a.id" class="mb-4">
-                        <audio controls class="w-full"><source :src="a.url" type="audio/mpeg"></audio>
+        
+        <section v-if="salvationInfo" class="mb-16 glass p-10 rounded-[3rem] border-2 border-blue-500/30 bg-blue-500/5 relative overflow-hidden">
+            <div class="relative z-10">
+                <h2 class="text-blue-500 font-black text-[10px] mb-8 tracking-[0.5em] uppercase text-center">Foundation of Salvation</h2>
+                <div class="space-y-12">
+                    <div>
+                        <h3 class="text-white font-black text-xs uppercase mb-4 tracking-widest">1. Definition & Description</h3>
+                        <p class="text-slate-200 text-xl font-serif italic leading-relaxed">{{ salvationInfo.description }}</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="p-8 bg-white/5 rounded-[2rem] border border-white/5">
+                            <h3 class="text-blue-400 font-black text-[10px] uppercase mb-3">2. Importance & Why</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed">{{ salvationInfo.importance }}</p>
+                        </div>
+                        <div class="p-8 bg-white/5 rounded-[2rem] border border-white/5">
+                            <h3 class="text-blue-400 font-black text-[10px] uppercase mb-3">3. Who is Eligible?</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed">{{ salvationInfo.who }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <section class="max-w-md mx-auto space-y-6">
-                <div v-if="!showConfession" class="bg-black/20 p-8 rounded-[2.5rem] border border-white/5">
-                    <h3 class="text-white font-bold mb-6 text-center text-xs uppercase tracking-tighter">Enter Your Decision</h3>
-                    <input v-model="seekerData.location" placeholder="City / Country" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl mb-3 text-white text-sm outline-none">
-                    <input v-model="seekerData.phone" placeholder="Phone Number" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl mb-3 text-white text-sm outline-none">
-                    <input v-model="seekerData.email" placeholder="Email Address" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl mb-6 text-white text-sm outline-none">
-                    <button @click="initConfession" :disabled="!isFormValid" class="w-full bg-blue-600 py-4 rounded-xl text-white font-black text-xs disabled:opacity-20 uppercase">Proceed to Confession</button>
-                    <p v-if="!wordRead" class="text-[9px] text-red-500/60 mt-2 text-center">Please meditate on the Word first (check the box above).</p>
+        <div class="mb-16">
+            <div class="bg-black rounded-[3rem] overflow-hidden border-4 border-white/5 aspect-video shadow-2xl">
+                <video v-if="videoContent.length > 0" :key="videoContent[0].url" controls autoplay muted playsinline class="w-full h-full object-cover">
+                    <source :src="videoContent[0].url" type="video/mp4">
+                </video>
+            </div>
+        </div>
+
+        <section class="glass p-12 rounded-[3rem] border-l-8 border-blue-600 mb-16 shadow-2xl">
+            <div v-for="s in scriptures" :key="s.id" class="mb-10 last:mb-0">
+                <h2 class="text-4xl font-serif italic text-white leading-tight">"{{ s.text }}"</h2>
+                <p class="text-blue-500 mt-4 font-mono text-sm uppercase tracking-widest">— {{ s.ref }}</p>
+            </div>
+            <div class="mt-12 flex items-center gap-4">
+                <input type="checkbox" v-model="wordRead" id="readCheck" class="w-8 h-8 rounded bg-black/60 cursor-pointer accent-blue-600 border-white/20">
+                <label for="readCheck" class="text-xs font-black uppercase text-white tracking-widest cursor-pointer">I have read and meditated on the Word</label>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 pb-32">
+            <div v-if="!showConfession" class="bg-black/30 p-10 rounded-[3rem] border border-white/10 shadow-2xl">
+                <div class="space-y-6">
+                    <div>
+                        <input v-model="seekerData.location" placeholder="City / Country" class="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white text-sm outline-none focus:border-blue-500">
+                        <span v-if="seekerData.location && seekerData.location.length < 3" class="error-text">Required</span>
+                    </div>
+                    <div>
+                        <input v-model="seekerData.phone" type="tel" placeholder="Phone (e.g. +254...)" class="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white text-sm outline-none focus:border-blue-500">
+                        <span v-if="seekerData.phone && !isPhoneValid" class="error-text">Incorrect Format</span>
+                    </div>
+                    <div>
+                        <input v-model="seekerData.email" type="email" placeholder="Email Address" class="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white text-sm outline-none focus:border-blue-500">
+                        <span v-if="seekerData.email && !isEmailValid" class="error-text">Incorrect Format</span>
+                    </div>
+                    <button @click="initConfession" :disabled="!isFormValid" class="w-full bg-blue-600 py-6 rounded-3xl text-white font-black text-xs uppercase tracking-widest shadow-xl disabled:opacity-10">Proceed to Confession</button>
                 </div>
-                <div v-else class="bg-white p-12 rounded-[3.5rem] text-center shadow-2xl">
-                    <h2 class="text-3xl font-black text-black mb-6 uppercase">I Confess</h2>
-                    <p class="text-slate-600 italic font-serif text-lg mb-10 leading-relaxed">"Jesus is Lord. I believe in my heart and confess with my mouth."</p>
-                    <button @click="submitConfession" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl uppercase">Amen & Submit</button>
-                    <button @click="showConfession = false" class="mt-4 text-[9px] text-slate-400 uppercase font-bold">Back to edit details</button>
+            </div>
+            <div v-else class="bg-white p-12 rounded-[4rem] text-center shadow-2xl transform scale-105">
+                <h2 class="text-5xl font-black text-black mb-6 uppercase italic">I Confess</h2>
+                <p class="text-slate-600 italic font-serif text-2xl mb-12 leading-relaxed">"Jesus is Lord. I believe in my heart and confess with my mouth today."</p>
+                <button @click="submitConfession" class="w-full bg-blue-600 text-white font-black py-7 rounded-[2rem] uppercase text-xs tracking-widest shadow-xl">Amen & Submit</button>
+            </div>
+
+            <div class="glass p-10 rounded-[3rem]">
+                <p class="text-blue-500 font-black text-[10px] uppercase mb-6 tracking-widest">Audio Message</p>
+                <div v-for="a in audioContent" :key="a.id" class="mb-6 last:mb-0">
+                    <audio controls class="w-full h-8 opacity-60"><source :src="a.url" type="audio/mpeg"></audio>
                 </div>
-            </section>
+            </div>
         </div>
     </main>
 
     <main v-if="view === 'admin'" class="p-8 max-w-7xl mx-auto">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <aside class="lg:col-span-3 flex flex-col gap-4">
-                <div class="glass p-6 rounded-3xl flex flex-col gap-2">
-                    <button @click="adminSubView = 'map'" :class="['admin-link', adminSubView === 'map' ? 'active' : '']">Global Statistics</button>
-                    <button @click="adminSubView = 'salvation'" :class="['admin-link', adminSubView === 'salvation' ? 'active' : '']">Publish Salvation</button>
-                    <button @click="adminSubView = 'scriptures'" :class="['admin-link', adminSubView === 'scriptures' ? 'active' : '']">Manage Word</button>
-                    <button @click="adminSubView = 'media'" :class="['admin-link', adminSubView === 'media' ? 'active' : '']">Asset Linker</button>
-                    <button @click="adminSubView = 'email'" :class="['admin-link', adminSubView === 'email' ? 'active' : '']">Discipleship Loop</button>
+            <aside class="lg:col-span-3 space-y-4">
+                <div class="glass p-6 rounded-[2.5rem] flex flex-col gap-2">
+                    <button @click="adminSubView = 'stats'" :class="['admin-link', adminSubView === 'stats' ? 'active' : '']">Global Statistics</button>
+                    <button @click="adminSubView = 'salvation'" :class="['admin-link', adminSubView === 'salvation' ? 'active' : '']">Describe Salvation</button>
+                    <button @click="adminSubView = 'media'" :class="['admin-link', adminSubView === 'media' ? 'active' : '']">Sync Media</button>
+                    <button @click="adminSubView = 'discipleship'" :class="['admin-link', adminSubView === 'discipleship' ? 'active' : '']">Discipleship Loop</button>
+                </div>
+                <div class="glass p-8 rounded-[2.5rem] text-center">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold mb-1">Total Souls Reached</p>
+                    <h4 class="text-5xl font-black text-blue-500 tracking-tighter">{{ decisions.length }}</h4>
                 </div>
             </aside>
 
             <div class="lg:col-span-9">
-                <div v-if="adminSubView === 'map'" class="glass p-8 rounded-[2.5rem] relative h-[500px] border border-blue-500/20 overflow-hidden">
-                    <div class="flex justify-between items-start z-10 relative">
-                        <h3 class="text-xs font-bold text-blue-500 uppercase tracking-widest">Live Statistics</h3>
-                        <button @click="exportCSV" class="bg-green-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Export CSV</button>
-                    </div>
-                    <div v-for="d in decisions" :key="d.id" class="pulse-dot" :style="{ top: d.lat + '%', left: d.lng + '%' }" @click="selectedSoul = d"></div>
-                </div>
-
-                <div v-if="adminSubView === 'salvation'" class="glass p-8 rounded-3xl">
-                    <h3 class="text-xs font-bold text-blue-400 uppercase mb-4 tracking-widest">Salvation Definition</h3>
-                    <div class="space-y-4">
-                        <textarea v-model="newSalvation.description" placeholder="Description/Definition" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-xs h-24 outline-none"></textarea>
-                        <textarea v-model="newSalvation.importance" placeholder="Importance & Why" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-xs h-24 outline-none"></textarea>
-                        <input v-model="newSalvation.who" placeholder="For Who?" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-xs outline-none">
-                        <button @click="publishSalvation" class="w-full bg-blue-600 py-4 rounded-xl font-bold text-[10px] uppercase">Update Salvation Message</button>
-                    </div>
-                </div>
-
-                <div v-if="adminSubView === 'scriptures'" class="glass p-8 rounded-3xl">
-                    <h3 class="text-xs font-bold text-blue-400 uppercase mb-4 tracking-widest">Sync Scriptures</h3>
-                    <div class="flex gap-4 mb-8">
-                        <input v-model="bibleSearch" placeholder="Ref (John 3:16)" class="flex-1 bg-black/40 border border-white/10 p-4 rounded-xl text-xs outline-none">
-                        <button @click="fetchScripture" class="bg-blue-600 px-6 rounded-xl text-[10px] font-bold uppercase">Fetch</button>
-                    </div>
-                    <div class="space-y-2 h-48 overflow-y-auto">
-                        <div v-for="s in scriptures" :key="s.id" class="p-3 bg-white/5 rounded-xl border border-white/10 flex justify-between items-center">
-                            <span class="text-[10px]">{{ s.ref }}</span>
-                            <button @click="deleteItem(s.id, 'scriptures')" class="text-red-500 font-bold text-[9px]">DELETE</button>
+                
+                <div v-if="adminSubView === 'stats'" class="glass p-10 rounded-[3rem] h-[650px] relative overflow-hidden">
+                    <div class="flex flex-wrap justify-between items-center z-10 relative mb-8 gap-4">
+                        <h3 class="text-xs font-bold text-blue-500 uppercase tracking-widest">Global Map Analytics</h3>
+                        <div class="flex gap-2">
+                            <input type="date" v-model="exportDate" class="bg-black/60 border border-white/10 p-2 rounded-lg text-[10px] text-white">
+                            <button @click="exportCSVByDate" class="bg-green-600 text-white px-6 py-2 rounded-lg text-[10px] font-black uppercase shadow-lg">Export CSV</button>
                         </div>
                     </div>
+                    <div v-for="(d, idx) in decisions" :key="d.id" class="pulse-dot" 
+                         :style="{ top: d.lat + '%', left: d.lng + '%', background: getSoulColor(idx) }" 
+                         @click="selectedSoul = d"></div>
                 </div>
 
-                <div v-if="adminSubView === 'media'" class="glass p-8 rounded-3xl">
-                    <h3 class="text-xs font-bold text-green-400 uppercase mb-4 tracking-widest">Media Sync</h3>
-                    <div class="space-y-4">
-                        <input v-model="newMedia.url" placeholder="Direct Link (github.io/video.mp4)" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-xs outline-none">
-                        <input v-model="newMedia.title" placeholder="Title" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-xs outline-none">
-                        <select v-model="newMedia.type" class="w-full bg-black border border-white/10 p-4 rounded-xl text-xs">
-                            <option value="video">Video</option>
-                            <option value="audio">Audio</option>
-                        </select>
-                        <button @click="linkMedia" class="w-full bg-green-600 py-4 rounded-xl font-bold text-[10px] uppercase">Sync Library</button>
+                <div v-if="adminSubView === 'salvation'" class="glass p-10 rounded-[3rem]">
+                    <h3 class="text-xs font-bold text-blue-400 uppercase mb-8 tracking-widest">Publish Core Message Data</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="text-[10px] uppercase font-bold text-slate-500 ml-2">Describe & Define Salvation</label>
+                            <textarea v-model="newSalvation.description" class="w-full bg-black/40 border border-white/10 p-5 rounded-3xl text-xs h-32 outline-none mt-2"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-[10px] uppercase font-bold text-slate-500 ml-2">Explain Importance & Why</label>
+                            <textarea v-model="newSalvation.importance" class="w-full bg-black/40 border border-white/10 p-5 rounded-3xl text-xs h-32 outline-none mt-2"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-[10px] uppercase font-bold text-slate-500 ml-2">Who is Eligible?</label>
+                            <input v-model="newSalvation.who" class="w-full bg-black/40 border border-white/10 p-5 rounded-3xl text-xs outline-none mt-2">
+                        </div>
+                        <button @click="publishSalvation" class="w-full bg-blue-600 py-6 rounded-3xl font-black text-xs uppercase tracking-widest shadow-xl">Publish to Platform</button>
                     </div>
                 </div>
 
-                <div v-if="adminSubView === 'email'" class="glass p-8 rounded-3xl">
-                    <h3 class="text-xs font-bold uppercase mb-4 text-blue-400">Formspree Deliveries</h3>
+                <div v-if="adminSubView === 'media'" class="glass p-10 rounded-[3rem]">
+                    <h3 class="text-xs font-bold text-green-400 uppercase mb-8 tracking-widest">Repository Asset Synchronization</h3>
+                    <div class="space-y-5">
+                        <input v-model="newMedia.url" placeholder="Direct URL (MP4/MP3)" class="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-xs">
+                        <input v-model="newMedia.title" placeholder="Title" class="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-xs">
+                        <select v-model="newMedia.type" class="w-full bg-black border border-white/10 p-5 rounded-2xl text-xs">
+                            <option value="video">Video Testimony</option>
+                            <option value="audio">Audio Message</option>
+                        </select>
+                        <button @click="linkMedia" class="w-full bg-green-600 py-6 rounded-3xl font-black text-xs uppercase tracking-widest shadow-xl">Update Global Display</button>
+                    </div>
+                </div>
+
+                <div v-if="adminSubView === 'discipleship'" class="glass p-10 rounded-[3rem]">
+                    <h3 class="text-xs font-bold text-blue-400 uppercase mb-8 tracking-widest">Formspree Discipleship Hub</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
-                            <textarea v-model="doctrinalMessage" placeholder="Teaching content..." class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-xs h-48 mb-4 outline-none"></textarea>
-                            <button @click="sendBulkFormspree" :disabled="sending || selectedEmails.length === 0" class="w-full bg-blue-600 py-4 rounded-xl font-bold text-[10px] uppercase">
-                                {{ sending ? 'Syncing...' : 'Deliver to ' + selectedEmails.length + ' Souls' }}
+                            <textarea v-model="doctrinalMessage" placeholder="Teaching content..." class="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-xs h-64 mb-4 outline-none"></textarea>
+                            <input v-model="formspreeId" placeholder="Formspree ID (e.g. xrgnpown)" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-xs mb-4">
+                            <button @click="sendBulkFormspree" :disabled="sending || selectedEmails.length === 0" class="w-full bg-blue-600 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest">
+                                {{ sending ? 'Dispatching Pulse...' : 'Deliver to ' + selectedEmails.length + ' Souls' }}
                             </button>
                         </div>
-                        <div class="h-48 overflow-y-auto space-y-2 p-2">
-                            <div v-for="d in decisions" :key="d.id" @click="toggleSoul(d.email)" :class="['p-3 rounded-xl border text-[10px] transition cursor-pointer', selectedEmails.includes(d.email) ? 'border-blue-500 bg-blue-500/10' : 'bg-white/5 border-transparent']">
-                                {{ d.email }}
+                        <div class="h-[400px] overflow-y-auto space-y-2 p-2 glass rounded-2xl">
+                            <div v-for="d in decisions" :key="d.id" @click="toggleSoul(d.email)" 
+                                 :class="['p-4 rounded-xl border text-[10px] transition cursor-pointer', selectedEmails.includes(d.email) ? 'border-blue-500 bg-blue-500/20' : 'bg-white/5 border-transparent text-slate-500']">
+                                {{ d.email }} <br> <span class="text-[8px] opacity-40 uppercase">{{ d.location }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </main>
 
-    <div v-if="selectedSoul" class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/90 p-6" @click.self="selectedSoul = null">
-        <div class="glass p-10 rounded-[3rem] text-center max-w-sm w-full">
-            <h2 class="text-3xl font-black text-white mb-2 uppercase">{{ selectedSoul.location }}</h2>
-            <p class="text-blue-500 font-mono text-[10px] mb-6">{{ selectedSoul.email }}</p>
-            <p class="text-slate-500 text-[10px] uppercase">Contact: {{ selectedSoul.phone }}</p>
-            <button @click="selectedSoul = null" class="w-full bg-blue-600 py-4 rounded-2xl font-bold text-[10px] uppercase mt-8">Close</button>
+    <div v-if="selectedSoul" class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95 p-6 backdrop-blur-xl" @click.self="selectedSoul = null">
+        <div class="glass p-12 rounded-[4rem] text-center max-w-sm w-full border border-blue-500/20 shadow-2xl">
+            <h2 class="text-4xl font-black text-white mb-2 uppercase">{{ selectedSoul.location }}</h2>
+            <p class="text-blue-500 font-mono text-xs mb-8 tracking-widest">{{ selectedSoul.email }}</p>
+            <div class="bg-white/5 p-6 rounded-3xl mb-10">
+                <p class="text-slate-500 text-[10px] uppercase font-bold mb-1">Phone Number</p>
+                <p class="text-white text-xl font-mono">{{ selectedSoul.phone }}</p>
+            </div>
+            <button @click="selectedSoul = null" class="w-full bg-blue-600 text-white py-5 rounded-3xl font-black text-[10px] uppercase tracking-widest">Close Record</button>
         </div>
     </div>
 
-    <main v-if="view === 'login'" class="max-w-md mx-auto py-32 px-6">
-        <div class="glass p-12 rounded-[3.5rem] text-center border border-white/10">
-            <h2 class="text-white font-black uppercase text-xs mb-8 tracking-[0.3em]">Harvest Admin</h2>
-            <input v-model="login.email" type="email" placeholder="Email" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-white text-sm outline-none mb-4">
-            <input v-model="login.password" type="password" placeholder="Passcode" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-white text-sm outline-none mb-6">
-            <button @click="handleLogin" class="w-full bg-blue-600 py-4 rounded-xl font-black text-[10px] uppercase">Unlock</button>
+    <main v-if="view === 'login'" class="max-w-md mx-auto py-40 px-6">
+        <div class="glass p-12 rounded-[4rem] text-center border border-white/10 shadow-3xl">
+            <h2 class="text-white font-black uppercase text-xs mb-10 tracking-[0.4em]">Administrative Access</h2>
+            <input v-model="login.email" type="email" placeholder="Email" class="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white text-sm outline-none mb-4">
+            <input v-model="login.password" type="password" placeholder="Passcode" class="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white text-sm outline-none mb-6">
+            <button @click="handleLogin" class="w-full bg-blue-600 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest">Unlock</button>
         </div>
     </main>
 </div>
@@ -184,7 +214,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
     const firebaseConfig = {
   apiKey: "AIzaSyD8PoKP8yD3TFBemPWsRO4DrzHmIaKib6U",
@@ -193,8 +223,8 @@
   projectId: "soul-107d9",
   storageBucket: "soul-107d9.firebasestorage.app",
   messagingSenderId: "838547366718",
-  appId: "1:838547366718:web:a92089df2a2d47f23e426f",
-  measurementId: "G-21WKK2L1LT"
+  appId: "1:838547366718:web:089536f0ba0038203e426f",
+  measurementId: "G-MD7VMZC4C7"
 };
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -205,12 +235,14 @@
     createApp({
         setup() {
             const view = vRef('seeker');
-            const adminSubView = vRef('map');
+            const adminSubView = vRef('stats');
             const isAdmin = vRef(false);
             const showConfession = vRef(false);
             const wordRead = vRef(false);
             const selectedSoul = vRef(null);
             const sending = vRef(false);
+            const exportDate = vRef(new Date().toISOString().substr(0, 10));
+            const formspreeId = vRef('');
             
             const scriptures = vRef([]);
             const media = vRef([]);
@@ -220,62 +252,36 @@
             
             const login = vRef({ email: '', password: '' });
             const seekerData = vRef({ location: '', phone: '', email: '' });
-            const bibleSearch = vRef('');
             const newMedia = vRef({ url: '', title: '', type: 'video' });
             const doctrinalMessage = vRef('');
             const newSalvation = vRef({ description: '', importance: '', who: '' });
 
-            const isFormValid = computed(() => {
-                return wordRead.value && 
-                       seekerData.value.email.includes('@') && 
-                       seekerData.value.location.length > 2 &&
-                       seekerData.value.phone.length > 5;
-            });
+            // DATA VALIDATION
+            const isEmailValid = computed(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(seekerData.value.email));
+            const isPhoneValid = computed(() => /^\+?[1-9]\d{1,14}$/.test(seekerData.value.phone.replace(/\s+/g, '')));
+            const isFormValid = computed(() => wordRead.value && isEmailValid.value && isPhoneValid.value && seekerData.value.location.length >= 3);
 
             const videoContent = computed(() => media.value.filter(m => m.type === 'video'));
             const audioContent = computed(() => media.value.filter(m => m.type === 'audio'));
 
-            // ADMIN ACTIONS
             const handleLogin = async () => { try { await signInWithEmailAndPassword(auth, login.value.email, login.value.password); } catch(e) { alert("Access Denied."); } };
             const handleLogout = () => signOut(auth);
 
             const publishSalvation = async () => {
-                await setDoc(doc(db, "settings", "salvation"), { ...newSalvation.value, updatedAt: serverTimestamp() });
-                alert("Salvation message published!");
-            };
-
-            const fetchScripture = async () => {
-                if(!bibleSearch.value) return;
-                const res = await fetch(`https://bible-api.com/${bibleSearch.value}`);
-                const data = await res.json();
-                if(data.text) await addDoc(collection(db, "scriptures"), { text: data.text.trim(), ref: data.reference, createdAt: serverTimestamp() });
+                try {
+                    await setDoc(doc(db, "settings", "salvation"), { ...newSalvation.value, updatedAt: serverTimestamp() });
+                    alert("Salvation Definition Published Successfully!");
+                } catch(e) { alert("Publication Error: " + e.message); }
             };
 
             const linkMedia = async () => {
                 if(!newMedia.value.url) return;
                 await addDoc(collection(db, "media"), { ...newMedia.value, createdAt: serverTimestamp() });
                 newMedia.value = { url: '', title: '', type: 'video' };
-                alert("Synced!");
+                alert("Global Display Updated!");
             };
 
-            const deleteItem = async (id, table) => { if(confirm("Confirm deletion?")) await deleteDoc(doc(db, table, id)); };
-
-            const sendBulkFormspree = async () => {
-                if(!doctrinalMessage.value) return;
-                sending.value = true;
-                const FORMSPREE_ID = "https://formspree.io/f/xnqklkvj"; 
-                for (const email of selectedEmails.value) {
-                    try {
-                        await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ email, message: doctrinalMessage.value })
-                        });
-                    } catch(e) {}
-                }
-                alert("Delivery Complete.");
-                sending.value = false; selectedEmails.value = [];
-            };
+            const getSoulColor = (idx) => ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'][idx % 5];
 
             const toggleSoul = (email) => {
                 const idx = selectedEmails.value.indexOf(email);
@@ -283,13 +289,36 @@
                 else selectedEmails.value.push(email);
             };
 
-            const exportCSV = () => {
-                let csv = "Location,Email,Phone\n";
-                decisions.value.forEach(d => { csv += `"${d.location}","${d.email}","${d.phone}"\n`; });
-                const blob = new Blob([csv], { type: 'text/csv' });
+            const exportCSVByDate = () => {
+                const filtered = decisions.value.filter(d => {
+                    if(!d.timestamp) return false;
+                    return new Date(d.timestamp.seconds * 1000).toISOString().substr(0, 10) === exportDate.value;
+                });
+                if(filtered.length === 0) return alert("No records for " + exportDate.value);
+                let csv = "Location,Email,Phone,Time\n";
+                filtered.forEach(d => { 
+                    const dt = new Date(d.timestamp.seconds * 1000).toLocaleString();
+                    csv += `"${d.location}","${d.email}","${d.phone}","${dt}"\n`; 
+                });
                 const a = document.createElement('a');
-                a.href = window.URL.createObjectURL(blob);
-                a.download = 'harvest.csv'; a.click();
+                a.href = window.URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+                a.download = `Harvest_Souls_${exportDate.value}.csv`; a.click();
+            };
+
+            const sendBulkFormspree = async () => {
+                if(!doctrinalMessage.value || !formspreeId.value) return alert("Fill ID and Message");
+                sending.value = true;
+                for (const email of selectedEmails.value) {
+                    try {
+                        await fetch(`https://formspree.io/f/${formspreeId.value}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, message: doctrinalMessage.value, _subject: "Discipleship Teaching" })
+                        });
+                    } catch(e) {}
+                }
+                alert("Bulk Dispatch Complete.");
+                sending.value = false; selectedEmails.value = [];
             };
 
             const initConfession = () => { if(isFormValid.value) showConfession.value = true; };
@@ -297,10 +326,10 @@
                 await addDoc(collection(db, "decisions"), { 
                     ...seekerData.value, 
                     timestamp: serverTimestamp(), 
-                    lat: Math.random() * 80 + 10, 
-                    lng: Math.random() * 80 + 10 
+                    lat: Math.random() * 70 + 15, 
+                    lng: Math.random() * 70 + 15 
                 });
-                alert("Decision Saved to Glory!");
+                alert("Decision Captured! Hallelujah.");
                 showConfession.value = false;
                 seekerData.value = { location: '', phone: '', email: '' };
                 wordRead.value = false;
@@ -314,7 +343,7 @@
                 onSnapshot(doc(db, "settings", "salvation"), s => { if(s.exists()) { salvationInfo.value = s.data(); newSalvation.value = s.data(); } });
             });
 
-            return { view, adminSubView, isAdmin, showConfession, wordRead, selectedSoul, scriptures, media, videoContent, audioContent, decisions, salvationInfo, login, seekerData, bibleSearch, newMedia, doctrinalMessage, newSalvation, selectedEmails, sending, isFormValid, handleLogin, handleLogout, publishSalvation, fetchScripture, linkMedia, deleteItem, exportCSV, initConfession, submitConfession, toggleSoul, sendBulkFormspree };
+            return { view, adminSubView, isAdmin, showConfession, wordRead, selectedSoul, scriptures, media, videoContent, audioContent, decisions, salvationInfo, login, seekerData, newMedia, doctrinalMessage, newSalvation, selectedEmails, sending, isFormValid, isEmailValid, isPhoneValid, exportDate, formspreeId, handleLogin, handleLogout, publishSalvation, linkMedia, getSoulColor, exportCSVByDate, initConfession, submitConfession, toggleSoul, sendBulkFormspree };
         }
     }).mount('#app');
 </script>
