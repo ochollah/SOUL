@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harvest Digital | Ochollah Kennedy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        [v-cloak] { display: none; }
+        .cyber-bg { background: radial-gradient(circle at top, #0f172a 0%, #020617 100%); }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .pulse-dot { width: 14px; height: 14px; background: #3b82f6; border-radius: 50%; box-shadow: 0 0 15px #3b82f6; position: absolute; animation: pulse 2s infinite; cursor: pointer; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(3); opacity: 0; } }
+        .admin-link { @apply p-3 rounded-xl text-[10px] font-bold uppercase text-left transition-all hover:bg-white/5; }
+        .admin-link.active { @apply bg-blue-600 text-white shadow-lg shadow-blue-900/40; }
+    </style>
+</head>
+<body class="cyber-bg text-slate-300 min-h-screen">
+
+<div id="app" v-cloak>
+    <nav class="p-4 flex justify-between items-center glass sticky top-0 z-50">
+        <h1 class="font-black text-white tracking-widest text-xs uppercase cursor-pointer" @click="view = 'seeker'">Harvest <span class="text-blue-500">Global</span></h1>
+        <div class="flex gap-4">
+            <button v-if="isAdmin" @click="handleLogout" class="text-[10px] text-red-500 font-bold uppercase">Logout</button>
+            <button v-else @click="view = 'login'" class="text-[10px] text-slate-500 uppercase">Admin Portal</button>
+        </div>
+    </nav>
+
+    <main v-if="view === 'seeker'" class="max-w-4xl mx-auto py-12 px-6">
+        <section v-if="salvationInfo" class="mb-12 glass p-8 rounded-3xl border border-blue-500/20">
+            <h2 class="text-blue-400 font-black text-xs uppercase mb-4 tracking-widest">The Message of Salvation</h2>
+            <div class="space-y-4 text-sm leading-relaxed">
+                <p><strong class="text-white uppercase text-[10px]">What is it?</strong> {{ salvationInfo.description }}</p>
+                <p><strong class="text-white uppercase text-[10px]">Why & Importance:</strong> {{ salvationInfo.importance }}</p>
+                <p><strong class="text-white uppercase text-[10px]">For Who?</strong> {{ salvationInfo.who }}</p>
+            </div>
+        </section>
+
+        <div class="space-y-12">
+            <section class="glass p-10 rounded-[2.5rem] border-l-4 border-blue-600">
+                <div v-if="scriptures.length === 0" class="text-slate-600 italic text-sm">Searching the Word...</div>
+                <div v-for="s in scriptures" :key="s.id" class="mb-8 last:mb-0">
+                    <h2 class="text-3xl font-serif italic text-white leading-tight">"{{ s.text }}"</h2>
+                    <p class="text-blue-500 mt-3 font-mono text-xs uppercase">— {{ s.ref }}</p>
+                </div>
+                <div class="mt-6 flex items-center gap-3">
+                    <input type="checkbox" v-model="wordRead" id="readCheck" class="w-5 h-5 rounded border-white/20 bg-black/60 cursor-pointer">
+                    <label for="readCheck" class="text-[10px] uppercase text-slate-400 cursor-pointer">I have read and meditated on the Word</label>
+                </div>
+            </section>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-black rounded-3xl overflow-hidden border-2 border-white/5 aspect-video flex items-center justify-center relative">
+                    <video v-if="videoContent.length > 0" :key="videoContent[0].url" controls playsinline crossorigin="anonymous" class="w-full h-full">
+                        <source :src="videoContent[0].url" type="video/mp4">
+                    </video>
+                    <p v-else class="text-[10px] text-slate-700 uppercase">Video Testimony Offline</p>
+                </div>
+                <div class="bg-slate-900/50 rounded-3xl p-8 border border-white/5 flex flex-col justify-center">
+                    <p class="text-[10px] font-bold text-blue-500 uppercase mb-4 tracking-widest">Audio Message</p>
+                    <div v-for="a in audioContent" :key="a.id" class="mb-4">
+                        <audio controls class="w-full"><source :src="a.url" type="audio/mpeg"></audio>
+                    </div>
+                </div>
+            </div>
+
+            <section class="max-w-md mx-auto space-y-6">
+                <div v-if="!showConfession" class="bg-black/20 p-8 rounded-[2.5rem] border border-white/5">
+                    <h3 class="text-white font-bold mb-6 text-center text-xs uppercase tracking-tighter">Enter Your Decision</h3>
+                    <input v-model="seekerData.location" placeholder="City / Country" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl mb-3 text-white text-sm outline-none">
+                    <input v-model="seekerData.phone" placeholder="Phone Number" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl mb-3 text-white text-sm outline-none">
+                    <input v-model="seekerData.email" placeholder="Email Address" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl mb-6 text-white text-sm outline-none">
+                    <button @click="initConfession" :disabled="!isFormValid" class="w-full bg-blue-600 py-4 rounded-xl text-white font-black text-xs disabled:opacity-20 uppercase">Proceed to Confession</button>
+                    <p v-if="!wordRead" class="text-[9px] text-red-500/60 mt-2 text-center">Please meditate on the Word first (check the box above).</p>
+                </div>
+                <div v-else class="bg-white p-12 rounded-[3.5rem] text-center shadow-2xl">
+                    <h2 class="text-3xl font-black text-black mb-6 uppercase">I Confess</h2>
+                    <p class="text-slate-600 italic font-serif text-lg mb-10 leading-relaxed">"Jesus is Lord. I believe in my heart and confess with my mouth."</p>
+                    <button @click="submitConfession" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl uppercase">Amen & Submit</button>
+                    <button @click="showConfession = false" class="mt-4 text-[9px] text-slate-400 uppercase font-bold">Back to edit details</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <main v-if="view === 'admin'" class="p-8 max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <aside class="lg:col-span-3 flex flex-col gap-4">
+                <div class="glass p-6 rounded-3xl flex flex-col gap-2">
+                    <button @click="adminSubView = 'map'" :class="['admin-link', adminSubView === 'map' ? 'active' : '']">Global Statistics</button>
+                    <button @click="adminSubView = 'salvation'" :class="['admin-link', adminSubView === 'salvation' ? 'active' : '']">Publish Salvation</button>
+                    <button @click="adminSubView = 'scriptures'" :class="['admin-link', adminSubView === 'scriptures' ? 'active' : '']">Manage Word</button>
+                    <button @click="adminSubView = 'media'" :class="['admin-link', adminSubView === 'media' ? 'active' : '']">Asset Linker</button>
+                    <button @click="adminSubView = 'email'" :class="['admin-link', adminSubView === 'email' ? 'active' : '']">Discipleship Loop</button>
+                </div>
+            </aside>
+
+            <div class="lg:col-span-9">
+                <div v-if="adminSubView === 'map'" class="glass p-8 rounded-[2.5rem] relative h-[500px] border border-blue-500/20 overflow-hidden">
+                    <div class="flex justify-between items-start z-10 relative">
+                        <h3 class="text-xs font-bold text-blue-500 uppercase tracking-widest">Live Statistics</h3>
+                        <button @click="exportCSV" class="bg-green-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Export CSV</button>
+                    </div>
+                    <div v-for="d in decisions" :key="d.id" class="pulse-dot" :style="{ top: d.lat + '%', left: d.lng + '%' }" @click="selectedSoul = d"></div>
+                </div>
+
+                <div v-if="adminSubView === 'salvation'" class="glass p-8 rounded-3xl">
+                    <h3 class="text-xs font-bold text-blue-400 uppercase mb-4 tracking-widest">Salvation Definition</h3>
+                    <div class="space-y-4">
+                        <textarea v-model="newSalvation.description" placeholder="Description/Definition" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-xs h-24 outline-none"></textarea>
+                        <textarea v-model="newSalvation.importance" placeholder="Importance & Why" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-xs h-24 outline-none"></textarea>
+                        <input v-model="newSalvation.who" placeholder="For Who?" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-xs outline-none">
+                        <button @click="publishSalvation" class="w-full bg-blue-600 py-4 rounded-xl font-bold text-[10px] uppercase">Update Salvation Message</button>
+                    </div>
+                </div>
+
+                <div v-if="adminSubView === 'scriptures'" class="glass p-8 rounded-3xl">
+                    <h3 class="text-xs font-bold text-blue-400 uppercase mb-4 tracking-widest">Sync Scriptures</h3>
+                    <div class="flex gap-4 mb-8">
+                        <input v-model="bibleSearch" placeholder="Ref (John 3:16)" class="flex-1 bg-black/40 border border-white/10 p-4 rounded-xl text-xs outline-none">
+                        <button @click="fetchScripture" class="bg-blue-600 px-6 rounded-xl text-[10px] font-bold uppercase">Fetch</button>
+                    </div>
+                    <div class="space-y-2 h-48 overflow-y-auto">
+                        <div v-for="s in scriptures" :key="s.id" class="p-3 bg-white/5 rounded-xl border border-white/10 flex justify-between items-center">
+                            <span class="text-[10px]">{{ s.ref }}</span>
+                            <button @click="deleteItem(s.id, 'scriptures')" class="text-red-500 font-bold text-[9px]">DELETE</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="adminSubView === 'media'" class="glass p-8 rounded-3xl">
+                    <h3 class="text-xs font-bold text-green-400 uppercase mb-4 tracking-widest">Media Sync</h3>
+                    <div class="space-y-4">
+                        <input v-model="newMedia.url" placeholder="Direct Link (github.io/video.mp4)" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-xs outline-none">
+                        <input v-model="newMedia.title" placeholder="Title" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-xs outline-none">
+                        <select v-model="newMedia.type" class="w-full bg-black border border-white/10 p-4 rounded-xl text-xs">
+                            <option value="video">Video</option>
+                            <option value="audio">Audio</option>
+                        </select>
+                        <button @click="linkMedia" class="w-full bg-green-600 py-4 rounded-xl font-bold text-[10px] uppercase">Sync Library</button>
+                    </div>
+                </div>
+
+                <div v-if="adminSubView === 'email'" class="glass p-8 rounded-3xl">
+                    <h3 class="text-xs font-bold uppercase mb-4 text-blue-400">Formspree Deliveries</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <textarea v-model="doctrinalMessage" placeholder="Teaching content..." class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-xs h-48 mb-4 outline-none"></textarea>
+                            <button @click="sendBulkFormspree" :disabled="sending || selectedEmails.length === 0" class="w-full bg-blue-600 py-4 rounded-xl font-bold text-[10px] uppercase">
+                                {{ sending ? 'Syncing...' : 'Deliver to ' + selectedEmails.length + ' Souls' }}
+                            </button>
+                        </div>
+                        <div class="h-48 overflow-y-auto space-y-2 p-2">
+                            <div v-for="d in decisions" :key="d.id" @click="toggleSoul(d.email)" :class="['p-3 rounded-xl border text-[10px] transition cursor-pointer', selectedEmails.includes(d.email) ? 'border-blue-500 bg-blue-500/10' : 'bg-white/5 border-transparent']">
+                                {{ d.email }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div v-if="selectedSoul" class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/90 p-6" @click.self="selectedSoul = null">
+        <div class="glass p-10 rounded-[3rem] text-center max-w-sm w-full">
+            <h2 class="text-3xl font-black text-white mb-2 uppercase">{{ selectedSoul.location }}</h2>
+            <p class="text-blue-500 font-mono text-[10px] mb-6">{{ selectedSoul.email }}</p>
+            <p class="text-slate-500 text-[10px] uppercase">Contact: {{ selectedSoul.phone }}</p>
+            <button @click="selectedSoul = null" class="w-full bg-blue-600 py-4 rounded-2xl font-bold text-[10px] uppercase mt-8">Close</button>
+        </div>
+    </div>
+
+    <main v-if="view === 'login'" class="max-w-md mx-auto py-32 px-6">
+        <div class="glass p-12 rounded-[3.5rem] text-center border border-white/10">
+            <h2 class="text-white font-black uppercase text-xs mb-8 tracking-[0.3em]">Harvest Admin</h2>
+            <input v-model="login.email" type="email" placeholder="Email" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-white text-sm outline-none mb-4">
+            <input v-model="login.password" type="password" placeholder="Passcode" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-white text-sm outline-none mb-6">
+            <button @click="handleLogin" class="w-full bg-blue-600 py-4 rounded-xl font-black text-[10px] uppercase">Unlock</button>
+        </div>
+    </main>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+  apiKey: "AIzaSyD8PoKP8yD3TFBemPWsRO4DrzHmIaKib6U",
+  authDomain: "soul-107d9.firebaseapp.com",
+  databaseURL: "https://soul-107d9-default-rtdb.firebaseio.com",
+  projectId: "soul-107d9",
+  storageBucket: "soul-107d9.firebasestorage.app",
+  messagingSenderId: "838547366718",
+  appId: "1:838547366718:web:a92089df2a2d47f23e426f",
+  measurementId: "G-21WKK2L1LT"
+};
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const { createApp, ref: vRef, onMounted, computed } = Vue;
+
+    createApp({
+        setup() {
+            const view = vRef('seeker');
+            const adminSubView = vRef('map');
+            const isAdmin = vRef(false);
+            const showConfession = vRef(false);
+            const wordRead = vRef(false);
+            const selectedSoul = vRef(null);
+            const sending = vRef(false);
+            
+            const scriptures = vRef([]);
+            const media = vRef([]);
+            const decisions = vRef([]);
+            const salvationInfo = vRef(null);
+            const selectedEmails = vRef([]);
+            
+            const login = vRef({ email: '', password: '' });
+            const seekerData = vRef({ location: '', phone: '', email: '' });
+            const bibleSearch = vRef('');
+            const newMedia = vRef({ url: '', title: '', type: 'video' });
+            const doctrinalMessage = vRef('');
+            const newSalvation = vRef({ description: '', importance: '', who: '' });
+
+            const isFormValid = computed(() => {
+                return wordRead.value && 
+                       seekerData.value.email.includes('@') && 
+                       seekerData.value.location.length > 2 &&
+                       seekerData.value.phone.length > 5;
+            });
+
+            const videoContent = computed(() => media.value.filter(m => m.type === 'video'));
+            const audioContent = computed(() => media.value.filter(m => m.type === 'audio'));
+
+            // ADMIN ACTIONS
+            const handleLogin = async () => { try { await signInWithEmailAndPassword(auth, login.value.email, login.value.password); } catch(e) { alert("Access Denied."); } };
+            const handleLogout = () => signOut(auth);
+
+            const publishSalvation = async () => {
+                await setDoc(doc(db, "settings", "salvation"), { ...newSalvation.value, updatedAt: serverTimestamp() });
+                alert("Salvation message published!");
+            };
+
+            const fetchScripture = async () => {
+                if(!bibleSearch.value) return;
+                const res = await fetch(`https://bible-api.com/${bibleSearch.value}`);
+                const data = await res.json();
+                if(data.text) await addDoc(collection(db, "scriptures"), { text: data.text.trim(), ref: data.reference, createdAt: serverTimestamp() });
+            };
+
+            const linkMedia = async () => {
+                if(!newMedia.value.url) return;
+                await addDoc(collection(db, "media"), { ...newMedia.value, createdAt: serverTimestamp() });
+                newMedia.value = { url: '', title: '', type: 'video' };
+                alert("Synced!");
+            };
+
+            const deleteItem = async (id, table) => { if(confirm("Confirm deletion?")) await deleteDoc(doc(db, table, id)); };
+
+            const sendBulkFormspree = async () => {
+                if(!doctrinalMessage.value) return;
+                sending.value = true;
+                const FORMSPREE_ID = "https://formspree.io/f/xnqklkvj"; 
+                for (const email of selectedEmails.value) {
+                    try {
+                        await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, message: doctrinalMessage.value })
+                        });
+                    } catch(e) {}
+                }
+                alert("Delivery Complete.");
+                sending.value = false; selectedEmails.value = [];
+            };
+
+            const toggleSoul = (email) => {
+                const idx = selectedEmails.value.indexOf(email);
+                if (idx > -1) selectedEmails.value.splice(idx, 1);
+                else selectedEmails.value.push(email);
+            };
+
+            const exportCSV = () => {
+                let csv = "Location,Email,Phone\n";
+                decisions.value.forEach(d => { csv += `"${d.location}","${d.email}","${d.phone}"\n`; });
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const a = document.createElement('a');
+                a.href = window.URL.createObjectURL(blob);
+                a.download = 'harvest.csv'; a.click();
+            };
+
+            const initConfession = () => { if(isFormValid.value) showConfession.value = true; };
+            const submitConfession = async () => {
+                await addDoc(collection(db, "decisions"), { 
+                    ...seekerData.value, 
+                    timestamp: serverTimestamp(), 
+                    lat: Math.random() * 80 + 10, 
+                    lng: Math.random() * 80 + 10 
+                });
+                alert("Decision Saved to Glory!");
+                showConfession.value = false;
+                seekerData.value = { location: '', phone: '', email: '' };
+                wordRead.value = false;
+            };
+
+            onMounted(() => {
+                onAuthStateChanged(auth, u => { isAdmin.value = !!u; if(u) view.value = 'admin'; });
+                onSnapshot(query(collection(db, "scriptures"), orderBy("createdAt", "desc")), s => { scriptures.value = s.docs.map(d => ({id: d.id, ...d.data()})); });
+                onSnapshot(collection(db, "media"), s => { media.value = s.docs.map(d => ({id: d.id, ...d.data()})); });
+                onSnapshot(collection(db, "decisions"), s => { decisions.value = s.docs.map(d => ({id: d.id, ...d.data()})); });
+                onSnapshot(doc(db, "settings", "salvation"), s => { if(s.exists()) { salvationInfo.value = s.data(); newSalvation.value = s.data(); } });
+            });
+
+            return { view, adminSubView, isAdmin, showConfession, wordRead, selectedSoul, scriptures, media, videoContent, audioContent, decisions, salvationInfo, login, seekerData, bibleSearch, newMedia, doctrinalMessage, newSalvation, selectedEmails, sending, isFormValid, handleLogin, handleLogout, publishSalvation, fetchScripture, linkMedia, deleteItem, exportCSV, initConfession, submitConfession, toggleSoul, sendBulkFormspree };
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>
